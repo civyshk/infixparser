@@ -39,11 +39,20 @@ public class Parenthesis implements Operand {
 	
 	private Operation getOperation() {
 		//Iterate through every operand and choose the one with the least binding priority
-		int maxPrecedence = operators.stream()
-				.mapToInt(o -> o.getPrecedence())
-				.max()
-				.orElse(-1);
-		
+//		int maxPrecedence = operators.stream()
+//				.mapToInt(o -> o.getPrecedence())
+//				.max()
+//				.orElse(-1);
+
+		int precedence,
+			maxPrecedence = -1;
+		for(Operator op : operators){
+			precedence = op.getPrecedence();
+			if(precedence > maxPrecedence){
+				maxPrecedence = precedence;
+			}
+		}
+
 		//default looping values to choose the leftmost POW
 		int start = 0;
 		int end = operators.size();

@@ -62,7 +62,13 @@ public enum Operator {
 	}
 	
 	static public boolean anyStarts(String candidate) {
-		return functionNames.stream().anyMatch(s -> s.startsWith(candidate));
+//		return functionNames.stream().anyMatch(s -> s.startsWith(candidate));
+		for (String fun : functionNames) {
+			if (fun.startsWith(candidate)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	static public Operator fromName(String name) throws IllegalArgumentException {
