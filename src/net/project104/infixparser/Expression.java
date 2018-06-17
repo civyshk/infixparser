@@ -8,24 +8,27 @@ import java.util.List;
  * and a matching number (n-1) of binary operators
  * 
  * @author civyshk
- * @version 20180223
+ * @version 20180617
  */
-public class Parenthesis implements Operand {
+public class Expression implements Operand {
 	private List<Operand> operands;
 	private List<Operator> operators;
+	private final Calculator calc;
 
 	/**
 	 * Constructor for a number of operands and binary operators
 	 * @param operands List of operands
 	 * @param operators List of binary operators
+	 * @param calc
 	 * @throws IllegalArgumentException If the size of operands is not the size of operators + 1
 	 */
-	public Parenthesis(List<Operand> operands, List<Operator> operators) {
+	public Expression(List<Operand> operands, List<Operator> operators, Calculator calc) {
 		if(operands.size() != operators.size() + 1) {
 			throw new IllegalArgumentException("Lengths don't match operands = operators + 1");
 		}
 		this.operands = operands;
 		this.operators = operators;
+		this.calc = calc;
 	}
 
 	@Override
@@ -67,18 +70,19 @@ public class Parenthesis implements Operand {
 		
 		for(int i = start; i != end; i += step) {
 			if(operators.get(i).getPrecedence() == maxPrecedence) {
-				Parenthesis left = new Parenthesis(
+				Expression left = new Expression(
 						operands.subList(0, i + 1),
-						operators.subList(0, i));
+						operators.subList(0, i),
+						calc);
 				
-				Parenthesis right = new Parenthesis(
+				Expression right = new Expression(
 						operands.subList(i+1, operands.size()),
-						operators.subList(i+1, operators.size()));
+						operators.subList(i+1, operators.size()),
+						calc);
 				
-				return new Operation(operators.get(i),left, right);
+				return new Operation(operators.get(i), left, right, calc);
 			}
 		}
 		throw new RuntimeException("Wrongly coded. It should't reach here");
 	}
-
 }

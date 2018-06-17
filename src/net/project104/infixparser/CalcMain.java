@@ -5,13 +5,14 @@ import java.util.Scanner;
  * Accepts a mathematical expression from the user
  * and returns its numerical value
  * @author civyshk
- * @created 20180220
- * @version 20180223
+ * @since 20180220
+ * @version 20180617
  */
 public class CalcMain {
 
 	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
+		Calculator calc = new Calculator();
 		System.out.println("salir | exit | quit | q" );
 		System.out.print("> ");
 		while(in.hasNext()) {
@@ -19,7 +20,7 @@ public class CalcMain {
 			if(s.trim().toLowerCase().matches("^salir|exit|q(uit)?$")) {
 				break;
 			}
-			RawText p = new RawText(s);
+			RawText p = new RawText(s, calc);
 			try {
 				System.out.println(p.getValue());
 			}catch(Exception e) {
@@ -27,7 +28,7 @@ public class CalcMain {
 			}
 			System.out.print("> ");
 		}
-		System.out.println("Sponsored by Civyshk; GPLv3");
+		System.out.println("(C) Civyshk - 2018; GPLv3; Live fast, love hard, never die");
 		in.close();
 	}
 }

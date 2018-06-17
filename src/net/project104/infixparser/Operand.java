@@ -7,9 +7,8 @@ import java.math.BigDecimal;
  * an operation like + - * / %
  *   
  * @author civyshk
- * @version 20180218
+ * @version 20180617
  */
 public interface Operand {
-	public BigDecimal getValue();
-
+	BigDecimal getValue();
 }

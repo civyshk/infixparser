@@ -1,38 +1,67 @@
 package net.project104.infixparser;
 
+import static net.project104.infixparser.Constants.*;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Rules from https://docs.python.org/3/reference/expressions.html
  * Operators in the same box [precedence] group left to right 
  * (except for exponentiation, which groups from right to left)
  * @author civyshk
- * @cersion 20180223
+ * @version 20180617
  */
 public enum Operator {
-	ADD(2, 2), SUBTRACT(2, 2), 
-	MULTIPLY(2, 1), DIVIDE(2, 1), MODULO(2, 1), 
-	POW(2, 0),
-	SQRT(1), LOG10(1);
+
+	ADDITION("ADD", 2, 2), SUBTRACTION("SUBTRACT", 2, 2),
+	MULTIPLICATION("MULTIPLY", 2, 1), DIVISION("DIVIDE", 2, 1), MODULO("MOD", 2, 1),
+	EXPONENTIATION("POW", 2, 0),
+
+	SQUARE("SQUARE", 1), SQUAREROOT("SQRT", 1), ROOTYX("ROOT", 2), NEGATIVE("NEG", 1), INVERSION("INVERSION", 1),
+
+	LOG10("LOG10", 1), LOGYX("LOG", 2), LOGN("LOGN", 1), EXPONENTIAL("EXP", 1), FACTORIAL("FACT", 1),
+
+	SINE("SIN", 1), COSINE("COS", 1), TANGENT("TAN", 1),
+	ARCSINE("ASIN", 1), ARCCOSINE("ACOS", 1), ARCTANGENT("ATAN", 1),
+	SINE_H("SINH", 1), COSINE_H("COSH", 1), TANGENT_H("TANH", 1),
+	DEGTORAD("RAD", 1), RADTODEG("DEG", 1),
+
+	FLOOR("FLOOR", 1), ROUND("ROUND", 1), CEIL("CEIL", 1),
+
+	RANDOM("RAND", 0),
+
+	SUMMATION("SUM", ARITY_ALL), SUMMATION_N("SUM", ARITY_N),
+	MEAN("AVG", ARITY_ALL), MEAN_N("AVG", ARITY_N),
+
+	CONSTANTPI("PI", ARITY_ZERO_ONE), CONSTANTEULER("E", ARITY_ZERO_ONE), CONSTANTPHI("PHI", ARITY_ZERO_ONE),
+
+	CIRCLE_SURFACE("SFCCIRCLE", 1), TRIANGLE_SURFACE("SFCTRIANGLE", 3),
+	HYPOTENUSE_PYTHAGORAS("PYTHAHYPO", 2), LEG_PYTHAGORAS("PYTHALEG", 2),
+	QUARATIC_EQUATION("SOLVE", 3);
 
 	public static ArrayList<String> functionNames;
 	static {
-		functionNames = new ArrayList<>(Arrays.asList(
-				"ADD", "SUBTRACT", 
-				"MULTIPLY", "DIVIDE", "MODULO", 
-				"POW",
-				"SQRT", "LOG10"));
+		functionNames = new ArrayList<>();
+		for(Operator op : Operator.values()){
+			functionNames.add(op.getFName());
+		}
 	}
-	
+
+	/**
+	 * Text representation of the operation, which the user can
+	 * write to access it
+	 */
+	private final String fName;
+
 	/** 
 	 * Lower values of precedence mean a higher binding priority
-	 * when grouping expressions
+	 * when grouping expressions. It only applies to binary
+	 * operators
 	 */
 	private final int precedence;
 	
 	/**
-	 * arity is 2 for binary operators but might hold different
+	 * arity is 2 for binary operators but may hold different
 	 * values for other operators
 	 */
 	private final int arity;
@@ -40,17 +69,22 @@ public enum Operator {
 	/**
 	 * @param arity The number of operands that this operator needs
 	 */
-	Operator(int arity){
-		this(arity, -1);
+	Operator(String fName, int arity){
+		this(fName, arity, -1);
 	}
 	
 	/**
 	 * @param arity The number of operands that this operator needs
 	 * @param precedence The highest values mean the lowest binding power
 	 */
-	Operator(int arity, int precedence){
+	Operator(String fName, int arity, int precedence){
+		this.fName = fName;
 		this.arity = arity;
 		this.precedence = precedence;
+	}
+
+	public String getFName(){
+		return fName;
 	}
 	
 	public int getPrecedence() {
@@ -72,16 +106,11 @@ public enum Operator {
 	}
 	
 	static public Operator fromName(String name) throws IllegalArgumentException {
-		switch(name) {
-			case "ADD": return ADD;
-			case "SUBTRACT": return SUBTRACT;
-			case "MULTIPLY": return MULTIPLY;
-			case "DIVIDE": return DIVIDE;
-			case "MODULO": return MODULO;
-			case "POW": return POW;
-			case "SQRT": return SQRT;
-			case "LOG10": return LOG10;
-			default: throw new IllegalArgumentException("There is no function with that name");				
+		for(Operator op : Operator.values()){
+			if(op.getFName().equals(name)){
+				return op;
+			}
 		}
+		throw new IllegalArgumentException("There is no function with that name");
 	}
 }

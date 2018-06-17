@@ -4,15 +4,17 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
- * This operand stores its data as a string extracted from within
- * a pair of parenthesis which is thought to produce a numeric value
+ * RawText is fed with a string which is thought to produce
+ * a numeric value. It's the entry point for any text which
+ * must be parsed and converted to a numeric result
  * 
  * @author civyshk
- * @version 20180223
+ * @version 20180617
  */
 public class RawText implements Operand {
 	private String content;
 	private BigDecimal value;
+	private final Calculator calc;
 	
 	private ArrayList<Operand> operands;
 	private ArrayList<Operator> operators;
@@ -30,16 +32,18 @@ public class RawText implements Operand {
 	 * First iteration works the same as 2
 	 */
 	private int lastAdded;
+
 	private int openParenthesis;
 	private Operation currentFunction;
 	
 	/**
-	 * 
 	 * @param text
+	 * @param calc
 	 */
-	public RawText(String text) {
-		content = text.replaceAll("\\s", "");
-		value = null;
+	public RawText(String text, Calculator calc) {
+		this.content = text.replaceAll("\\s", "");
+		this.calc = calc;
+		this.value = null;
 	}
 	
 	@Override
@@ -87,7 +91,7 @@ public class RawText implements Operand {
 			throw new IllegalArgumentException("Opening and closing parenthesis don't match:\n" + content);
 		}
 		
-		value = new Parenthesis(operands, operators).getValue();
+		value = new Expression(operands, operators, calc).getValue();
 	}
 	
 	private void addChar(char c) {	
@@ -116,7 +120,7 @@ public class RawText implements Operand {
 	}
 	
 	private void saveFunctionName() {
-		currentFunction = new Operation(currentTokenStr.toString());
+		currentFunction = new Operation(currentTokenStr.toString(), calc);
 		currentTokenList.clear();//TODO use clearToken()
 		currentTokenStr.setLength(0);
 		openParenthesis = 1;
@@ -134,12 +138,13 @@ public class RawText implements Operand {
 	
 	private void saveOperator(char c) {
 		switch(c) {
-			case '+': operators.add(Operator.ADD); break;
-			case '-': operators.add(Operator.SUBTRACT); break;
-			case '*': operators.add(Operator.MULTIPLY); break;
-			case '/': operators.add(Operator.DIVIDE); break;
+			case '+': operators.add(Operator.ADDITION); break;
+			case '-': operators.add(Operator.SUBTRACTION); break;
+			case '×':
+			case '*': operators.add(Operator.MULTIPLICATION); break;
+			case '/': operators.add(Operator.DIVISION); break;
 			case '%': operators.add(Operator.MODULO); break;
-			case '^': operators.add(Operator.POW); break;
+			case '^': operators.add(Operator.EXPONENTIATION); break;
 			default: throw new UnsupportedOperationException("Wrongly coded");
 		}
 		lastAdded = 2;
@@ -155,7 +160,7 @@ public class RawText implements Operand {
 			throw new IllegalStateException("Error: Nothing inside a parenthesis");
 		}
 		
-		operands.add(new RawText(currentTokenStr.toString()));
+		operands.add(new RawText(currentTokenStr.toString(), calc));
 		clearToken();	
 		lastAdded = 5;
 	}
@@ -166,7 +171,7 @@ public class RawText implements Operand {
 	
 	private void unexpected(char c, int i, String info) {
 		throw new IllegalArgumentException(String.format(
-				"%sUnexpected '%c' at position %d:\n\t%s", c, i, content, info != null ? info + ". " : ""));
+				"%sUnexpected '%c' at position %d:\n\t%s", info != null ? info + ". " : "", c, i, content));
 	}
 	
 	/**
@@ -202,7 +207,7 @@ public class RawText implements Operand {
 				}
 			}else if(c == '(' ) {
 				unexpected(c, i, "Number ended abruptly");
-			}else if(c == '*' || c == '/' || c == '%' || c == '^') {
+			}else if(c == '*' || c == '×' || c == '/' || c == '%' || c == '^') {
 				saveNumber();
 				saveOperator(c);
 			}else if(Character.isLetter(c)) {
@@ -222,7 +227,7 @@ public class RawText implements Operand {
 				saveFunctionName();
 			}else if(c == '.') {
 				unexpected(c, i, "'.' not allowed in function names");
-			}else if(c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^') {
+			}else if(c == '+' || c == '-' || c == '*' || c == '×' || c == '/' || c == '%' || c == '^') {
 				unexpected(c, i, "Function needs argument(s)");
 			}else {
 				throwUnexpected(c, i);
@@ -236,7 +241,7 @@ public class RawText implements Operand {
 				addChar(c);
 			}else if(c == '(') {
 				startParenthesis();
-			}else if(c == '*' || c == '/' || c == '%' || c == '^') {
+			}else if(c == '*' || c == '×' || c == '/' || c == '%' || c == '^') {
 				throwUnexpected(c, i);
 			}else if(Character.isLetter(c)) {
 				if(Operator.anyStarts(String.valueOf(Character.toUpperCase(c)))) {
@@ -248,7 +253,7 @@ public class RawText implements Operand {
 				throwUnexpected(c, i);
 			}
 		break;
-		case 3:// Parenthesis as an operand
+		case 3:// Expression as an operand
 			if(c == ')') {
 				openParenthesis--;
 				if(openParenthesis == 0) {
@@ -268,7 +273,7 @@ public class RawText implements Operand {
 				}
 			}
 		break;
-		case 4:// Parenthesis as function arguments
+		case 4:// Expression as function arguments
 			if(c == ')') {
 				openParenthesis--;
 				if(openParenthesis == 0) {
@@ -289,7 +294,7 @@ public class RawText implements Operand {
 			}
 		break;
 		case 5:// Just finished a parenthesis
-			if(c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^') {
+			if(c == '+' || c == '-' || c == '*' || c == '×' || c == '/' || c == '%' || c == '^') {
 				saveOperator(c);
 			}else {
 				throwUnexpected(c, i);

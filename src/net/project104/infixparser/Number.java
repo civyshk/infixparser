@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 /**
  * Number wraps a numeric value to act as an operand
- * @author besokare
+ * @author civyshk
  *
  */
 public class Number implements Operand{

@@ -1,53 +1,59 @@
 package net.project104.infixparser;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Operation represents a function/operation acting on
  * one or multiple operands
  * 
  * @author civyshk
- * @version 20180223
+ * @version 20180617
  */
 public class Operation implements Operand {
-	private Operator type;
+	private Operator operator;
 	private Operand[] operands;
 	private int parsedOperands;
 	private String argStr;
 	private BigDecimal value;
 	private int openParenthesis;
 	private StringBuilder currentOperandStr;
+
+	private final Calculator calc;
 	
 	/**
 	 * Constructor for a binary operation. It is most useful when creating
 	 * an operation from a binary operator like + - * / etc
-	 * @param type Binary {@link Operator}
+	 * @param operator Binary {@link Operator}
 	 * @param left Left {@link Operand}
 	 * @param right Right {@link Operand}
+	 * @param calc
 	 */
-	public Operation(Operator type, Operand left, Operand right) {
-		if(type.getArity() != 2) {
+	public Operation(Operator operator, Operand left, Operand right, Calculator calc) {
+		if(operator.getArity() != 2) {
 			throw new IllegalArgumentException("Wrong operand. It doesn't accept exactly 2 operands");
 		}
-		this.type = type;
+		this.operator = operator;
 		this.operands = new Operand[2];
 		this.operands[0] = left;
 		this.operands[1] = right;
+		this.calc = calc;
 		this.value = null;
+		this.argStr = null;
 	}
 	
 	/**
 	 * Constructor for an operation from a String holding its name. 
 	 * The function parameters need to be added using {@link #setArguments}
 	 * @param functionName The canonical name of the function
+	 * @param calc
 	 */
-	public Operation(String functionName) {
-		type = Operator.fromName(functionName);
-		operands = new Operand[type.getArity()];
-		value = null;
+	public Operation(String functionName, Calculator calc) {
+		this.operator = Operator.fromName(functionName);
+		this.operands = new Operand[this.operator.getArity()];
+		this.calc = calc;
+		this.value = null;
+		this.argStr = null;
 	}
 	
 	/**
@@ -73,38 +79,76 @@ public class Operation implements Operand {
 				throw new IllegalArgumentException("Opening and closing parenthesis don't match:\n" + argStr);
 			}
 			
-			if(parsedOperands != type.getArity()) {
+			if(parsedOperands != operator.getArity()) {
 				throw new IllegalStateException("The number of arguments don't match the function arity");
 			}
-		}	
-		
-		switch(type) {//TODO copy code from RPNCalc104k
-		case ADD:
-			value = operands[0].getValue().add(operands[1].getValue());
-			break;
-		case SUBTRACT:
-			value = operands[0].getValue().subtract(operands[1].getValue()); 
-			break;
-		case MULTIPLY:
-			value = operands[0].getValue().multiply(operands[1].getValue()); 
-			break;
-		case DIVIDE:
-			value = operands[0].getValue().divide(operands[1].getValue(), new MathContext(10, RoundingMode.HALF_UP)); 
-			break;
-		case MODULO:
-			value = new BigDecimal(operands[0].getValue().doubleValue() % operands[1].getValue().doubleValue()); 
-			break;
-		case POW:
-			value = new BigDecimal(Math.pow(operands[0].getValue().doubleValue(), operands[1].getValue().doubleValue())); 
-			break;
-		case SQRT:
-			value = new BigDecimal(Math.pow(operands[0].getValue().doubleValue(), 0.5)); 
-			break;
-		case LOG10:
-			value = new BigDecimal(Math.log10(operands[0].getValue().doubleValue())); 
-			break;			
-		default:
-			throw new RuntimeException("Wrongly coded. It shouldn't reach here");
+		}
+
+		//Build a bundle with operands and operator
+        OperandsBundle bundle = new OperandsBundle(operands);
+
+		// Warning: idea taken from 104RPNCalc, where this code actually makes sense
+		// Warning: use null as ThreadPoolExecutor, so don't even try to call task.start()
+        ThreadedOperation operationTask = new ThreadedOperation(bundle, operator, null, calc, null);
+        bundle = operationTask.call();
+
+		String error = null;
+		if(bundle.getError() != null) {
+			error = getErrorString(bundle.getError());
+			System.out.println(error);
+		}
+
+		List<BigDecimal> results = bundle.getResults();
+		if (error == null) {
+			value = results.get(0);
+			//Warning: No support for Operators which return more than one result
+		}
+	}
+
+	public static String getErrorString(CalculatorError error) {
+		switch(error){
+			case NOT_IMPLEMENTED:
+				return "Not implemented";
+			case DIV_BY_ZERO:
+				return "Division by zero";
+			case TOO_BIG:
+				return "That number is too big";
+			case NEGATIVE_SQRT:
+				return "Negative square root";
+			case TAN_OUT_DOMAIN:
+				return "Tangent out of domain";
+			case ARCSIN_OUT_RANGE:
+				return "Arcsin out of range";
+			case ARCCOS_OUT_RANGE:
+				return "Arccos out of range";
+			case LOG_OUT_RANGE:
+				return "Log out of range";
+			case WRONG_FACTORIAL:
+				return "Wrong factorial";
+			case NEGATIVE_RADIUS:
+				return "Negative radius";
+			case NEGATIVE_BASE_EXPONENTIATION:
+				return "Negative base for exponential";
+			case ROOT_INDEX_ZERO:
+				return "Index of root is zero";
+			case NEGATIVE_RADICAND:
+				return "Radicand can't be negative";
+			case LOG_BASE_ONE:
+				return "Base of log can't be one";
+			case SIDE_NEGATIVE:
+				return "A side is negative";
+			case NOT_TRIANGLE:
+				return "That is not a triangle";
+			case COMPLEX_NUMBER:
+				return "That yields a complex number";
+			case TOO_MANY_ARGS:
+				return "There are too many arguments";
+			case NOT_ENOUGH_ARGS:
+				return "There are not enough arguments";
+			case LAST_NOT_INT:
+				return "Last argument is not an integer";
+			default:
+				return "Unknown error";
 		}
 	}
 
@@ -131,7 +175,7 @@ public class Operation implements Operand {
 		if(currentOperandStr.length() == 0) {
 			throw new IllegalStateException("There is an empty argument");
 		}
-		operands[parsedOperands++] = new RawText(currentOperandStr.toString());
+		operands[parsedOperands++] = new RawText(currentOperandStr.toString(), calc);
 		currentOperandStr.setLength(0);
 	}
 
