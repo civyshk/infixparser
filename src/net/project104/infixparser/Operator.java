@@ -30,26 +30,30 @@ public enum Operator {
 
 	RANDOM("RAND", 0),
 
-	SUMMATION("SUM", ARITY_ALL), SUMMATION_N("SUM", ARITY_N),
-	MEAN("AVG", ARITY_ALL), MEAN_N("AVG", ARITY_N),
+	SUMMATION("SUM", ARITY_ALL), SUMMATION_N(null, ARITY_N),
+	MEAN("AVG", ARITY_ALL), MEAN_N(null, ARITY_N),
 
 	CONSTANTPI("PI", ARITY_ZERO_ONE), CONSTANTEULER("E", ARITY_ZERO_ONE), CONSTANTPHI("PHI", ARITY_ZERO_ONE),
 
 	CIRCLE_SURFACE("SFCCIRCLE", 1), TRIANGLE_SURFACE("SFCTRIANGLE", 3),
 	HYPOTENUSE_PYTHAGORAS("PYTHAHYPO", 2), LEG_PYTHAGORAS("PYTHALEG", 2),
-	QUARATIC_EQUATION("SOLVE", 3);
+	QUARATIC_EQUATION(null, 3);
 
-	public static ArrayList<String> functionNames;
+	public static final ArrayList<String> functionNames;
 	static {
 		functionNames = new ArrayList<>();
 		for(Operator op : Operator.values()){
-			functionNames.add(op.getFName());
+			String name = op.getFName();
+			if(name != null) {
+				functionNames.add(name);
+			}
 		}
 	}
 
 	/**
 	 * Text representation of the operation, which the user can
 	 * write to access it
+	 * If null, the user can't directly use it in an expression
 	 */
 	private final String fName;
 
@@ -57,16 +61,18 @@ public enum Operator {
 	 * Lower values of precedence mean a higher binding priority
 	 * when grouping expressions. It only applies to binary
 	 * operators
+	 * Non-binary operators have an unused negative precedence
 	 */
 	private final int precedence;
 	
 	/**
-	 * arity is 2 for binary operators but may hold different
+	 * Arity is 2 for binary operators but holds different
 	 * values for other operators
 	 */
 	private final int arity;
 	
 	/**
+	 * @param fName The text that the user can write to access this Operator
 	 * @param arity The number of operands that this operator needs
 	 */
 	Operator(String fName, int arity){
@@ -95,7 +101,7 @@ public enum Operator {
 		return arity;
 	}
 	
-	static public boolean anyStarts(String candidate) {
+	public static boolean anyStarts(String candidate) {
 //		return functionNames.stream().anyMatch(s -> s.startsWith(candidate));
 		for (String fun : functionNames) {
 			if (fun.startsWith(candidate)) {
@@ -105,9 +111,11 @@ public enum Operator {
 		return false;
 	}
 	
-	static public Operator fromName(String name) throws IllegalArgumentException {
+	public static Operator fromName(String name) throws IllegalArgumentException {
+		if(name == null) return null;
+
 		for(Operator op : Operator.values()){
-			if(op.getFName().equals(name)){
+			if(name.equals(op.getFName())){
 				return op;
 			}
 		}

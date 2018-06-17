@@ -34,7 +34,7 @@ public class ThreadedOperation implements Callable<OperandsBundle> {
     @Override
     public OperandsBundle call() {
         try {
-            switch(arity){
+            switch (arity) {
                 case ARITY_ALL:         solveArityAll(); break;
                 case ARITY_ZERO_ONE:    solveArityZeroOne(); break;
                 case ARITY_N:           solveArityN(); break;
@@ -42,8 +42,10 @@ public class ThreadedOperation implements Callable<OperandsBundle> {
                 case 1:                 solveArityOne(); break;
                 case 2:                 solveArityTwo(); break;
                 case 3:                 solveArityThree(); break;
-                default:  bundle.setError(CalculatorError.NOT_IMPLEMENTED);
+                default:         bundle.setError(CalculatorError.NOT_IMPLEMENTED);
             }
+        }catch(CalcException e){
+            bundle.setError(e.getError());
         }catch(ArithmeticException e) {
             bundle.setError(CalculatorError.NOT_IMPLEMENTED);
         }
@@ -70,7 +72,7 @@ public class ThreadedOperation implements Callable<OperandsBundle> {
 
     private void solveArityN() {
         if(stack == null){
-            throw new RuntimeException("There is no stack from which pop more numbers");
+            throw new RuntimeException("There is no stack from which pop more operands");
         }
 
         try {

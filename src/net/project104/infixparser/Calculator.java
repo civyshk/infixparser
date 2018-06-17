@@ -22,6 +22,7 @@ public class Calculator {
     private AngleMode angleMode;
 
     public Calculator(){
+        angleMode = AngleMode.DEGREE;
     }
 
     public void setAngleMode(AngleMode mode) {
