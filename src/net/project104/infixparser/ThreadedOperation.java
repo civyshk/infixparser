@@ -175,7 +175,7 @@ public class ThreadedOperation implements Callable<OperandsBundle> {
     private void solveArityThree() {
         switch (operator) {
             case TRIANGLE_SURFACE:      calc.triangleSurface(bundle);break;
-            case QUARATIC_EQUATION:     calc.quadraticEquation(bundle);break;
+            case QUADRATIC_EQUATION:     calc.quadraticEquation(bundle);break;
             default:    bundle.setError(CalculatorError.NOT_IMPLEMENTED);break;
         }
     }
