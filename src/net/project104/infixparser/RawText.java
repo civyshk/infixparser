@@ -142,6 +142,7 @@ public class RawText implements Operand {
 			case '-': operators.add(Operator.SUBTRACTION); break;
 			case '×':
 			case '*': operators.add(Operator.MULTIPLICATION); break;
+			case '÷':
 			case '/': operators.add(Operator.DIVISION); break;
 			case '%': operators.add(Operator.MODULO); break;
 			case '^': operators.add(Operator.EXPONENTIATION); break;
@@ -207,7 +208,7 @@ public class RawText implements Operand {
 				}
 			}else if(c == '(' ) {
 				unexpected(c, i, "Number ended abruptly");
-			}else if(c == '*' || c == '×' || c == '/' || c == '%' || c == '^') {
+			}else if(c == '*' || c == '×' || c == '/' || c == '÷' || c == '%' || c == '^') {
 				saveNumber();
 				saveOperator(c);
 			}else if(Character.isLetter(c)) {
@@ -227,7 +228,7 @@ public class RawText implements Operand {
 				saveFunctionName();
 			}else if(c == '.') {
 				unexpected(c, i, "'.' not allowed in function names");
-			}else if(c == '+' || c == '-' || c == '*' || c == '×' || c == '/' || c == '%' || c == '^') {
+			}else if(c == '+' || c == '-' || c == '*' || c == '×' || c == '/' || c == '÷' || c == '%' || c == '^') {
 				unexpected(c, i, "Function needs argument(s)");
 			}else {
 				throwUnexpected(c, i);
@@ -241,7 +242,7 @@ public class RawText implements Operand {
 				addChar(c);
 			}else if(c == '(') {
 				startParenthesis();
-			}else if(c == '*' || c == '×' || c == '/' || c == '%' || c == '^') {
+			}else if(c == '*' || c == '×' || c == '/' || c == '÷' || c == '%' || c == '^') {
 				throwUnexpected(c, i);
 			}else if(Character.isLetter(c)) {
 				if(Operator.anyStarts(String.valueOf(Character.toUpperCase(c)))) {
@@ -294,7 +295,7 @@ public class RawText implements Operand {
 			}
 		break;
 		case 5:// Just finished a parenthesis
-			if(c == '+' || c == '-' || c == '*' || c == '×' || c == '/' || c == '%' || c == '^') {
+			if(c == '+' || c == '-' || c == '*' || c == '×' || c == '/' || c == '÷' || c == '%' || c == '^') {
 				saveOperator(c);
 			}else {
 				throwUnexpected(c, i);
