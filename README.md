@@ -53,4 +53,4 @@
 
 # Use
 
-Run `java -jar solariscalc.jar` or `java -jar solariscalc-gui.jar`
+Run `java -jar solaryscalc.jar` or `java -jar solaryscalc-gui.jar`
