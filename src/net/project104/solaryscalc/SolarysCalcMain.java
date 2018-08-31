@@ -47,7 +47,7 @@ public class SolarysCalcMain {
 			}
 			System.out.print("> ");
 		}
-		System.out.println("(C) 2018 Yeshe Santos García\nGPLv3; Live fast, love hard, never die");
+		System.out.println("Solarys Calc (C) 2018 - Yeshe Santos García\nGPLv3; Live fast, love hard, never die");
 		in.close();
 	}
 

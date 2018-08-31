@@ -69,7 +69,7 @@ public class SolarysCalcGui extends JFrame {
 	 * Create the frame.
 	 */
 	public SolarysCalcGui() {
-		setTitle("Solaris Calc");
+		setTitle("Solarys Calc");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 300, 150);
 		setMinimumSize(new Dimension(300, 150));
