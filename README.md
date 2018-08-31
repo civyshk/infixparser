@@ -1,6 +1,6 @@
 # Solarys Calc
 
-**Solarys Calc** is a GPL3 command line & graphical calculator. It accepts any mathematical expression includding common operators (+ - * / % ^) and some functions like:
+**Solarys Calc** is a GPL3 command line & graphical calculator. It accepts any mathematical expression including common operators (+ - * / % ^) and some functions like:
 
 * ADD (2), a+b
 * SUBTRACT (2), a-b
