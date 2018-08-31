@@ -1,4 +1,4 @@
-package net.project104.infixparser.test;
+package net.project104.solaryscalc.test;
 
 //import static org.junit.Assert.*;
 

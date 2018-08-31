@@ -1,4 +1,23 @@
-package net.project104.infixparser;
+/*	Solarys Calc - Console & graphical calculator written in Java
+ * 	Copyright 2018 Yeshe Santos García <civyshk@gmail.com>
+ *	
+ *	This file is part of Solarys Calc
+ *	
+ *	Solarys Calc is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package net.project104.solaryscalc;
 import java.util.Scanner;
 
 /**
@@ -8,7 +27,7 @@ import java.util.Scanner;
  * @since 20180220
  * @version 20180617
  */
-public class CalcMain {
+public class SolarysCalcMain {
 
 	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
@@ -28,13 +47,13 @@ public class CalcMain {
 			}
 			System.out.print("> ");
 		}
-		System.out.println("(C) Civ Ysh K - 2018; GPLv3; Live fast, love hard, never die");
+		System.out.println("(C) 2018 Yeshe Santos García\nGPLv3; Live fast, love hard, never die");
 		in.close();
 	}
 
 	/*
 	Cuanto más la veía más seguro estaba de que era una máquina fabricada por la Cultura.
-	No se trataba de nada que pudiera definir con precisión, pero cada instante quepasaba
+	No se trataba de nada que pudiera definir con precisión, pero cada instante que pasaba
 	contemplando la máquina hacía que estuviera más seguro de ello. Supuso que debía contar
 	con cuarenta o cincuenta asientos; el tamaño justo para transportar a todas las personas
 	que había visto en la isla. No parecía especialmente nueva o rápida, y no daba la impresión
