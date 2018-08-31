@@ -39,12 +39,12 @@
  
 * RAND (0), random number in [0, 1)
  
-* SUM (ARITY_ALL),  summatory of some numbers
-* AVG (ARITY_ALL), average of some numbers
+* SUM (N),  summatory of some numbers
+* AVG (N), average of some numbers
  
-* PI (ARITY_ZERO_ONE), 3.14
-* E (ARITY_ZERO_ONE), 2.72
-* PHI (ARITY_ZERO_ONE), 1.62
+* PI (0 or 1), 3.14 multiplied by a if given
+* E (0 or 1), 2.72 multiplied by a if given
+* PHI (0 or 1), 1.62 multiplied by a if given
 
 * SURCIRCLE (1), surface of circle with radius a
 * SURTRIANGLE (3), surface of triangle with sides a, b, c
